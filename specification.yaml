@@ -1,0 +1,564 @@
+swagger: '2.0'
+info:
+  version: '1'
+  title: Adyen HPP
+  description: Hosted Payment Pages
+  license:
+    name: Apache-2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+externalDocs:
+  description: Find more info about Adyen HPP(Official api docs)
+  url: https://docs.adyen.com/developers/api-reference/hosted-payment-pages-api
+host: test.adyen.com
+basePath: /hpp
+schemes:
+  - https
+paths:
+  /select.shtml:
+    post:
+      operationId: select
+      summary: One-page payment flow
+      description: The multi-page payment flow splits the payment process into two or discrete steps or more. It is lightweight and it does not require JavaScript. This ensures maximum compatibility with a wide range of browsers and devices, including mobile phones and PDAs.
+      consumes:
+        - application/json
+      produces:
+        - text/html
+      parameters:
+      - name: paymentRequest
+        in: body
+        required: true
+        description: The Payment Request
+        schema:
+          $ref: '#/definitions/PaymentRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          examples:
+            text/html: <html><body>Your HTML text</body></html>
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Select
+  /pay.shtml:
+    post:
+      operationId: pay
+      summary: Multi-page payment flow
+      description: The multi-page payment flow splits the payment process into two or discrete steps or more. It is lightweight and it does not require JavaScript. This ensures maximum compatibility with a wide range of browsers and devices, including mobile phones and PDAs.
+      parameters:
+      - name: paymentRequest
+        in: body
+        required: true
+        description: The Payment Request
+        schema:
+          $ref: '#/definitions/PaymentRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          examples:
+            text/html: <html><body>Your HTML text</body></html>
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Pay
+  /directory.shtml:
+    post:
+      operationId: directory
+      summary: Directory lookup
+      description: Optionally, you may choose to host the payment selection on your website and skip the HPP part (directory lookup). Directory lookup enables you to directly show the entry fields for the selected payment methods to shoppers. It sends information such as the shopper location, shopping basket value and currency to the Adyen Payment Platform, which dynamically provides the list of the most relevant payment methods for this shopper to the merchant. By using this payment data, you can dynamically generate a customized payment page allowing the shopper to complete their purchase using a targeted selection of payment methods.  By selecting a payment method, the shopper is redirected to the local payment method check out of his choice, for example the shopper’s own bank iDEAL page, the shopper's own bank Suomen Verkumaksut page, PayPal page, etc. Following any payment request, Adyen sends back a notification providing the status of the payment and updates the status as soon as it changes. This means that our customers receive information about the status of the request in all cases.
+      parameters:
+      - name: directoryRequest
+        in: body
+        required: true
+        description: The Directory Request
+        schema:
+          $ref: '#/definitions/DirectoryRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          examples:
+            text/html: <html><body>Your HTML text</body></html>
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Directory
+  /skipDetails.shtml:
+    post:
+      operationId: skipDetails
+      summary: Skip HPP
+      description: If you want, you can skip displaying the payment method selection page with the list of available payment methods returned by the directory lookup. You can route your shopper directly to the payment or order detail entry page.
+      parameters:
+      - name: skipDetailsRequest
+        in: body
+        required: true
+        description: The SkipDetails Request
+        schema:
+          $ref: '#/definitions/SkipDetailsRequest'
+      responses:
+        200:
+          description: OK - the request has succeeded.
+          examples:
+            text/html: <html><body>Your HTML text</body></html>
+        400:
+          description: Bad Request - a problem reading or understanding the request.
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized - authentication required.
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: Forbidden - insufficient permissions to process the request.
+          schema:
+            $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity - a request validation error.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Internal Server Error - the server could not process the request.
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - SkipDetails
+definitions:
+  PaymentRequest:
+    title: PaymentRequest
+    type: object
+    required:
+    - merchantReference
+    - paymentAmount
+    - currencyCode
+    - shipBeforeDate
+    - skinCode
+    - merchantAccount
+    - sessionValidity
+    - merchantSig
+    - shopperEmail
+    - shopperReference
+    - recurringContract
+    properties:
+      merchantReference:
+        description: A reference to uniquely identify the payment. This reference is used in all communication with you about the payment status. We recommend using a unique value per payment; however, it is not a requirement.
+        type: string
+      paymentAmount:
+        description: The payable amount that can be charged for the transaction, in minor units.
+        type: integer
+        format: int64
+      currencyCode:
+        description: The three-character ISO currency code.
+        type: string
+        maxLength: 3
+        minLength: 3
+      shipBeforeDate:
+        description: The date within which the ordered goods or services need to be shipped or provided to the shopper. Format ISO 8601; YYYY-MM-DDThh:mm:ssTZD.
+        type: string
+        format: date-time
+      skinCode:
+        description: A unique code to identify the skin you want to apply to the HPP to process the transaction.
+        type: string
+      merchantAccount:
+        description: The merchant account identifier you want to process the (transaction) request with.
+        type: string
+      shopperLocale:
+        description: It specifies the language to use during the transaction. For example en_GB sets the locale preferences to British English. locale = language code + country code
+        type: string
+      orderData:
+        description: An HTML fragment containing the order details to display to the shopper on the payment review page, just before the shopper proceeds to the final order confirmation.
+        type: string
+      sessionValidity:
+        description: The payment deadline; the payment needs to occur within the specified time value. This is especially useful for tickets and reservations, where you want to hold items for sale for a short, limited period of time.
+        type: string
+        format: date-time
+      merchantReturnData:
+        description: This field value is appended as-is to the return URL when the shopper completes, or abandons, the payment process and is redirected to your web shop. Typically, this field is used to hold and transmit a session ID. Maximum allowed character length 128 characters.
+        type: string
+        maxLength: 128
+      merchantSig:
+        description: The signature in Base64 encoded format. The signature is generated by concatenating the values of a number of the payment session fields, and by computing the HMAC using the shared secret, as configured in the skin.
+        type: string
+      countryCode:
+        description: the two letter country code (ISO 3166-1)
+        type: string
+        maxLength: 2
+        minLength: 2
+      shopperEmail:
+        description: A shopper's email address.
+        type: string
+      shopperReference:
+        description: A unique identifier for the shopper, for example, a customer ID.
+        type: string
+      allowedMethods:
+        description: A comma-separated list of the allowed payment methods to filter the payment method options that would normally be available through the skinned HPP. Only the listed payment methods are shown, if available; all other payment methods are ignored. Spaces are not allowed.
+        type: string
+      blockedMethods:
+        description: A comma-separated list of the not allowed payment methods to filter the payment method options that would normally be available through the skinned HPP. The listed payment methods are not made available on the HPP. Spaces are not allowed.
+        type: string
+      offset:
+        description: An integer value that adds up to the normal fraud score. The value can be either a positive or negative integer.
+        type: integer
+        format: int32
+      brandCode:
+        description: Defines the specific payment method used to process the payment. This field is required in a payment request call to skipDetails.shtml to skip the payment method selection.
+        type: string
+      issuerId:
+        description: Defines the specific issuer ID used to process the payment. This field is required in a payment request call to skipDetails.shtml to skip the payment method selection.
+        type: string
+      shopperStatement:
+        description: Set this field in your payment request if you want to include a variable shopper statement.
+        type: string
+      offerEmail:
+        description: If offerEmail is set to prompt, an extra Pay by Email payment method is added to the available payment method list.
+        type: string
+      telephoneNumber:
+        description: A shopper's telephone number.
+        type: string
+      resURL:
+        description: Defines the result URL, i.e. the default result landing page shoppers are redirected to when they complete a payment on the HPP. We recommend setting a fixed resultURL in the skin configuration. However, sometimes it may be preferable to set the result URL on a per-payment basis to override the resultURL value specified in the skin configuration, you need to set the result URL for the payment session with the resURL parameter.
+        type: string
+      recurringContract:
+        $ref: '#/definitions/RecurringContractType'
+      metadata:
+        description: a map of key/value pairs of metadata sent by merchant
+        type: object
+  PaymentResponse:
+    title: PaymentResponse
+    type: object
+    required:
+    - authResult
+    - merchantReference
+    - skinCode
+    - merchantSig
+    - shopperLocale
+    properties:
+      authResult:
+        $ref: '#/definitions/AuthResultType'
+      pspReference:
+        description: Adyen's 16-digit unique reference associated with the transaction/the request. This value is globally unique; quote it when communicating with us about this request.
+        type: string
+      merchantReference:
+        description: The reference you assigned to the original payment.
+        type: string
+      skinCode:
+        description: The code that identifies the skin used to process the payment.
+        type: string
+      merchantSig:
+        description: The signature in Base64 encoded format. The signature is generated by concatenating the values of a number of the payment session fields, and by computing the HMAC using the shared secret, as configured in the skin.
+        type: string
+      paymentMethod:
+        description: The payment method used in the transaction. When authResult equals CANCELLED, the payment method may not be known – in this case, it is not included.
+        type: string
+      shopperLocale:
+        description: The shopperLocale value provided in the payment request. If no value is specified in the request, the default value en_GB is returned.
+        type: string
+      merchantReturnData:
+        description: If you define this field in the payment session setup, the value is returned as is. This information is useful to build a custom result page, and it integrates seamlessly with the shopper's session on your server.When the payment status is defined, we send you a server-to-server notification. This notification is the recommended way to update the payment status in your back office. The notification system is more reliable in its delivery because the  resultURL parameter relies on the shopper's browser/computer/Internet connection, any of which could fail at any time. We recommend setting a fixed resultURL in the skin configuration. However, sometimes it may be preferable to set the result URL on a per-payment basis to override the resultURL value specified in the skin configuration, you need to set the result URL for the payment session with the resURL parameter.
+        type: string
+      additionalData.acquirerReference:
+        description: This field is returned for open invoice in the result URL.
+        type: string
+  DirectoryRequest:
+    title: DirectoryRequest
+    type: object
+    required:
+    - currencyCode
+    - merchantAccount
+    - paymentAmount
+    - skinCode
+    - merchantReference
+    - sessionValidity
+    - merchantSig
+    properties:
+      currencyCode:
+        description: The three-character ISO currency code.
+        type: string
+        maxLength: 3
+        minLength: 3
+      merchantAccount:
+        description: The merchant account identifier you want to process the (transaction) request with.
+        type: string
+      paymentAmount:
+        description: The payable amount that can be charged for the transaction, in minor units.
+        type: integer
+        format: int64
+      skinCode:
+        description: A unique code to identify the skin you want to apply to the HPP to process the transaction.
+        type: string
+      merchantReference:
+        description: A reference to uniquely identify the payment. This reference is used in all communication with you about the payment status. We recommend using a unique value per payment; however, it is not a requirement.
+        type: string
+      sessionValidity:
+        description: The payment deadline; the payment needs to occur within the specified time value. This is especially useful for tickets and reservations, where you want to hold items for sale for a short, limited period of time.
+        type: string
+        format: date-time
+      merchantSig:
+        description: The signature in Base64 encoded format. The signature is generated by concatenating the values of a number of the payment session fields, and by computing the HMAC using the shared secret, as configured in the skin.
+        type: string
+      countryCode:
+        description: the two letter country code (ISO 3166-1)
+        type: string
+        maxLength: 2
+        minLength: 2
+  DirectoryResponse:
+    title: DirectoryResponse
+    type: object
+    required:
+    - paymentMethods
+    properties:
+      paymentMethods:
+        $ref: '#/definitions/PaymentMethodsType'
+      issuers:
+        $ref: '#/definitions/IssuersType'
+  SkipDetailsRequest:
+    title: SkipDetailsRequest
+    type: object
+    required:
+    - merchantReference
+    - paymentAmount
+    - currencyCode
+    - shipBeforeDate
+    - skinCode
+    - merchantAccount
+    - sessionValidity
+    - merchantSig
+    - shopperEmail
+    - shopperReference
+    - recurringContract
+    properties:
+      merchantReference:
+        description: A reference to uniquely identify the payment. This reference is used in all communication with you about the payment status. We recommend using a unique value per payment; however, it is not a requirement.
+        type: string
+      paymentAmount:
+        description: The payable amount that can be charged for the transaction, in minor units.
+        type: integer
+        format: int64
+      currencyCode:
+        description: The three-character ISO currency code.
+        type: string
+        maxLength: 3
+        minLength: 3
+      shipBeforeDate:
+        description: The date within which the ordered goods or services need to be shipped or provided to the shopper. Format ISO 8601; YYYY-MM-DDThh:mm:ssTZD.
+        type: string
+        format: date-time
+      skinCode:
+        description: A unique code to identify the skin you want to apply to the HPP to process the transaction.
+        type: string
+      merchantAccount:
+        description: The merchant account identifier you want to process the (transaction) request with.
+        type: string
+      shopperLocale:
+        description: It specifies the language to use during the transaction. For example en_GB sets the locale preferences to British English. locale = language code + country code
+        type: string
+      orderData:
+        description: An HTML fragment containing the order details to display to the shopper on the payment review page, just before the shopper proceeds to the final order confirmation.
+        type: string
+      sessionValidity:
+        description: The payment deadline; the payment needs to occur within the specified time value. This is especially useful for tickets and reservations, where you want to hold items for sale for a short, limited period of time.
+        type: string
+        format: date-time
+      merchantReturnData:
+        description: This field value is appended as-is to the return URL when the shopper completes, or abandons, the payment process and is redirected to your web shop. Typically, this field is used to hold and transmit a session ID. Maximum allowed character length 128 characters.
+        type: string
+        maxLength: 128
+      merchantSig:
+        description: The signature in Base64 encoded format. The signature is generated by concatenating the values of a number of the payment session fields, and by computing the HMAC using the shared secret, as configured in the skin.
+        type: string
+      countryCode:
+        description: the two letter country code (ISO 3166-1)
+        type: string
+        maxLength: 2
+        minLength: 2
+      shopperEmail:
+        description: A shopper's email address.
+        type: string
+      shopperReference:
+        description: A unique identifier for the shopper, for example, a customer ID.
+        type: string
+      allowedMethods:
+        description: A comma-separated list of the allowed payment methods to filter the payment method options that would normally be available through the skinned HPP. Only the listed payment methods are shown, if available; all other payment methods are ignored. Spaces are not allowed.
+        type: string
+      blockedMethods:
+        description: A comma-separated list of the not allowed payment methods to filter the payment method options that would normally be available through the skinned HPP. The listed payment methods are not made available on the HPP. Spaces are not allowed.
+        type: string
+      offset:
+        description: An integer value that adds up to the normal fraud score. The value can be either a positive or negative integer.
+        type: integer
+        format: int32
+      brandCode:
+        description: Defines the specific payment method used to process the payment. This field is required in a payment request call to skipDetails.shtml to skip the payment method selection.
+        type: string
+      issuerId:
+        description: Defines the specific issuer ID used to process the payment. This field is required in a payment request call to skipDetails.shtml to skip the payment method selection.
+        type: string
+      shopperStatement:
+        description: Set this field in your payment request if you want to include a variable shopper statement.
+        type: string
+      offerEmail:
+        description: If offerEmail is set to prompt, an extra Pay by Email payment method is added to the available payment method list.
+        type: string
+      resURL:
+        description: Defines the result URL, i.e. the default result landing page shoppers are redirected to when they complete a payment on the HPP. We recommend setting a fixed resultURL in the skin configuration. However, sometimes it may be preferable to set the result URL on a per-payment basis to override the resultURL value specified in the skin configuration, you need to set the result URL for the payment session with the resURL parameter.
+        type: string
+      recurringContract:
+        $ref: '#/definitions/RecurringContractType'
+  SkipDetailsResponse:
+    title: SkipDetailsResponse
+    type: object
+    required:
+    - authResult
+    - merchantReference
+    - skinCode
+    - merchantSig
+    - shopperLocale
+    properties:
+      authResult:
+        $ref: '#/definitions/AuthResultType'
+      pspReference:
+        description: Adyen's 16-digit unique reference associated with the transaction/the request. This value is globally unique; quote it when communicating with us about this request.
+        type: string
+      merchantReference:
+        description: The reference you assigned to the original payment.
+        type: string
+      skinCode:
+        description: The code that identifies the skin used to process the payment.
+        type: string
+      merchantSig:
+        description: The signature in Base64 encoded format. The signature is generated by concatenating the values of a number of the payment session fields, and by computing the HMAC using the shared secret, as configured in the skin.
+        type: string
+      paymentMethod:
+        description: The payment method used in the transaction. When authResult equals CANCELLED, the payment method may not be known – in this case, it is not included.
+        type: string
+      shopperLocale:
+        description: The shopperLocale value provided in the payment request. If no value is specified in the request, the default value en_GB is returned.
+        type: string
+      merchantReturnData:
+        description: If you define this field in the payment session setup, the value is returned as is. This information is useful to build a custom result page, and it integrates seamlessly with the shopper's session on your server.When the payment status is defined, we send you a server-to-server notification. This notification is the recommended way to update the payment status in your back office. The notification system is more reliable in its delivery because the  resultURL parameter relies on the shopper's browser/computer/Internet connection, any of which could fail at any time. We recommend setting a fixed resultURL in the skin configuration. However, sometimes it may be preferable to set the result URL on a per-payment basis to override the resultURL value specified in the skin configuration, you need to set the result URL for the payment session with the resURL parameter.
+        type: string
+      additionalData.acquirerReference:
+        description: This field is returned for open invoice in the result URL.
+        type: string
+  PaymentMethodsType:
+    title: Payment Methods
+    description: Contains the information about the available payment methods
+    type: object
+    required:
+    - brandCode
+    - logo
+    - name
+    properties:
+      brandCode:
+        description: Code of the payment method brand.
+        type: string
+      logo:
+        description: Image of the logo for the payment methods.
+        type: string
+      name:
+        description: Name of the payment method brand.
+        type: string
+  IssuersType:
+    title: Issuers
+    description: Returned only in case of bank payments.
+    type: object
+    properties:
+      issuerId:
+        description: ID of the issuer.
+        type: string
+      name:
+        description: Name of the issuer
+        type: string
+  AuthResultType:
+    title: Auth Result
+    description: Returns the outcome of the payment
+    type: string
+    enum:
+      - 'AUTHORISED'
+      - 'REFUSED'
+      - 'CANCELLED'
+      - 'PENDING'
+      - 'ERROR'
+  RecurringContractType:
+    title: Recurring Contract
+    description: The type of recurring contract to be used. Multiple values allowed as comma separated
+    type: string
+    enum:
+      - 'ONECLICK'
+      - 'RECURRING'
+      - 'ONECLICK,RECURRING'
+  Error:
+    title: Error
+    type: object
+    properties:
+      status:
+        description: the HTTP response status code
+        type: string
+      errorCode:
+        description: the Adyen code thatt is mapped to the error message
+        type: string
+      message:
+        description: the message, a short explanation of the issue
+        type: string
+      errorType:
+        $ref: '#/definitions/ErrorType'
+  ErrorType:
+    title: ErrorType
+    description: the type of error that was encountered
+    type: string
+    enum:
+      - 'internal'
+      - 'validation'
+      - 'security'
+      - 'configuration'

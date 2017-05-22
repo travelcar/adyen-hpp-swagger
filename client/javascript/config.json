@@ -1,0 +1,7 @@
+{
+  "projectName": "adyen-hpp-js",
+  "projectVersion": "1.0.0",
+  "emitModelMethods": "true",
+  "usePromises": "true",
+  "projectLicenseName": "Apache-2.0"
+}
